@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.0;
+pragma solidity ^0.6.0;
 
-// import "lib/ERC1155/ERC1155.sol";
-import "github.com/enjin/erc-1155/blob/master/contracts/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+// import "../lib/ERC 1155/ERC1155.sol";
+// import "../erc-1155/contracts/ERC1155.sol";
 
 contract Tokens is ERC1155 {
     // Token ids
