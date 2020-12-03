@@ -16,7 +16,7 @@ contract Tokens is ERC1155 {
 
     constructor() public ERC1155("http://localhost:8000/item/{id}/") {
         _mint(msg.sender, EMERALDS, EMERALDS_total_supply, ""); // Value includes 8 decimals, thus total supply is currently 10^5
-        _mint(msg.sender, SWORD_total_supply, 5, ""); // NFT token that has only 5 copies
-        _mint(msg.sender, LUCKY_POTION_total_supply, 2, ""); // NFT token that has only 2 copies
+        _mint(msg.sender, SWORD, SWORD_total_supply, ""); // NFT token that has only 5 copies
+        _mint(msg.sender, LUCKY_POTION, LUCKY_POTION_total_supply, ""); // NFT token that has only 2 copies
     }
 }
