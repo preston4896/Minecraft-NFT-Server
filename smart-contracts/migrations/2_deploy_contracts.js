@@ -3,5 +3,5 @@ const DeFi = artifacts.require("DeFi");
 
 module.exports = function (deployer) {
   deployer.deploy(Tokens);
-  deployer.deploy(DeFi);
+  deployer.deploy(DeFi, Tokens.address);
 };

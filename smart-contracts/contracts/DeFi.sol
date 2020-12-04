@@ -5,8 +5,9 @@ pragma solidity ^0.6.0;
 // import "@openzeppelin/contracts/token/ERC1155/ERC1155Holder.sol"; // uncomment this to implement.
 import "./Tokens.sol";
 
-contract DeFi is Tokens {
+contract DeFi {
   uint256 trade_ids;
+  Tokens public tokensContract;
 
   // Trade data struct 
   struct Trade {
@@ -41,13 +42,16 @@ contract DeFi is Tokens {
   // Trade Liquidated
   event LiquidatedTrade(uint256 trade_id);
 
-  constructor() public {
+  constructor(Tokens _tokensContract) public {
+    tokensContract = _tokensContract;
     trade_ids = 0;
   }
 
   function openTrade(uint256 nft_id, address borrower, uint256 borrowing_amount, uint256 apy) public returns (uint256) {
+    // verify borrower.
+    require(msg.sender == borrower, "Not the borrower");
     // Check if the borrower has atleast one of NFT
-    require(balanceOf(borrower, nft_id) >= 1);
+    require(tokensContract.balanceOf(borrower, nft_id) >= 1, "Insufficient NFT balance");
     
     // Create a trade with the current avaiable trade id
     uint256 trade_id = trade_ids;
@@ -63,9 +67,9 @@ contract DeFi is Tokens {
     // Check if the trade is still open
     require(trades[trade_id].state == State.OPEN);
     // Check if the borrower still has the NFT
-    require(balanceOf(trades[trade_id].borrower, trades[trade_id].nft_id) >= 1);
+    require(tokensContract.balanceOf(trades[trade_id].borrower, trades[trade_id].nft_id) >= 1);
     // Check if the lender has that much Fungible tokens
-    require(balanceOf(msg.sender, 0) >= trades[trade_id].borrowing_amount);
+    require(tokensContract.balanceOf(msg.sender, 0) >= trades[trade_id].borrowing_amount);
 
     // Assign the lender, set the state of the trade to FINANCED and start the time
     trades[trade_id].lender = msg.sender;
@@ -73,9 +77,9 @@ contract DeFi is Tokens {
     trades[trade_id].start_time = now;
 
     // Transfer the NFT from the borrower to this contract
-    safeTransferFrom(trades[trade_id].borrower, address(this), trades[trade_id].nft_id, 1, "0x0");
+    tokensContract.safeTransferFrom(trades[trade_id].borrower, address(this), trades[trade_id].nft_id, 1, "0x0");
     // Transfer the Fungible tokens from the lender to this contract
-    safeTransferFrom(trades[trade_id].lender, address(this), 0, trades[trade_id].borrowing_amount, "0x0");
+    tokensContract.safeTransferFrom(trades[trade_id].lender, address(this), 0, trades[trade_id].borrowing_amount, "0x0");
 
     // Emit that the trade has been financed
     emit TradeFinanced(trade_id);
@@ -88,10 +92,10 @@ contract DeFi is Tokens {
     // Make sure the caller is the trade's borrower
     require(msg.sender == trades[trade_id].borrower);
     // Make sure the borrower has enough funds
-    require(balanceOf(msg.sender, 0) >= amount);
+    require(tokensContract.balanceOf(msg.sender, 0) >= amount);
 
     trades[trade_id].paid_back_amount += amount;
-    safeTransferFrom(msg.sender, address(this), 0, amount, "0x0");
+    tokensContract.safeTransferFrom(msg.sender, address(this), 0, amount, "0x0");
     emit PaidInterest(trade_id, amount);
 
     // Only if the amount paid back is more than the principal could the transaction be complete
@@ -114,12 +118,12 @@ contract DeFi is Tokens {
 
   function completeTrade(uint256 trade_id) private returns (bool) {
     // Makes sure the contract still has the NFT and the money - Theoretically always true
-    require(balanceOf(address(this), trades[trade_id].nft_id) >= 1);
-    require(balanceOf(address(this), 0) >= trades[trade_id].paid_back_amount);
+    require(tokensContract.balanceOf(address(this), trades[trade_id].nft_id) >= 1);
+    require(tokensContract.balanceOf(address(this), 0) >= trades[trade_id].paid_back_amount);
 
     // Transfer the NFT and fungible tokens from the contract to the borrower and lender respectively
-    safeTransferFrom(address(this), trades[trade_id].borrower, trades[trade_id].nft_id, 1, "0x0");  
-    safeTransferFrom(address(this), trades[trade_id].lender, 0, trades[trade_id].paid_back_amount, "0x0");  
+    tokensContract.safeTransferFrom(address(this), trades[trade_id].borrower, trades[trade_id].nft_id, 1, "0x0");  
+    tokensContract.safeTransferFrom(address(this), trades[trade_id].lender, 0, trades[trade_id].paid_back_amount, "0x0");  
 
     // Set trade to close state
     trades[trade_id].state = State.CLOSED;
@@ -144,11 +148,11 @@ contract DeFi is Tokens {
 
     if (can_be_liquidated) {
       // Makes sure the contract still has the NFT and the money - Theoretically always true
-      require(balanceOf(address(this), trades[trade_id].nft_id) >= 1);
-      require(balanceOf(address(this), 0) >= trades[trade_id].paid_back_amount);
+      require(tokensContract.balanceOf(address(this), trades[trade_id].nft_id) >= 1);
+      require(tokensContract.balanceOf(address(this), 0) >= trades[trade_id].paid_back_amount);
 
-      safeTransferFrom(address(this), trades[trade_id].lender, trades[trade_id].nft_id, 1, "0x0");  
-      safeTransferFrom(address(this), trades[trade_id].lender, 0, trades[trade_id].paid_back_amount, "0x0");  
+      tokensContract.safeTransferFrom(address(this), trades[trade_id].lender, trades[trade_id].nft_id, 1, "0x0");  
+      tokensContract.safeTransferFrom(address(this), trades[trade_id].lender, 0, trades[trade_id].paid_back_amount, "0x0");  
 
       emit LiquidatedTrade(trade_id);
     } else {
