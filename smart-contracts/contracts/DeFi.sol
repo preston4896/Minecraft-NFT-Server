@@ -42,8 +42,8 @@ contract DeFi {
   // Trade Liquidated
   event LiquidatedTrade(uint256 trade_id);
 
-  constructor(Tokens _tokensContract) public {
-    tokensContract = _tokensContract;
+  constructor(address _address) public {
+    tokensContract = Tokens(_address);
     trade_ids = 0;
   }
 
