@@ -65,11 +65,11 @@ contract DeFi {
 
   function lendToTrade(uint256 trade_id) public returns (bool) {
     // Check if the trade is still open
-    require(trades[trade_id].state == State.OPEN);
+    require(trades[trade_id].state == State.OPEN, "Trade not open.");
     // Check if the borrower still has the NFT
-    require(tokensContract.balanceOf(trades[trade_id].borrower, trades[trade_id].nft_id) >= 1);
+    require(tokensContract.balanceOf(trades[trade_id].borrower, trades[trade_id].nft_id) >= 1, "Borrower does not have collatoral.");
     // Check if the lender has that much Fungible tokens
-    require(tokensContract.balanceOf(msg.sender, 0) >= trades[trade_id].borrowing_amount);
+    require(tokensContract.balanceOf(msg.sender, 0) >= trades[trade_id].borrowing_amount, "Lender does not have sufficient fundings.");
 
     // Assign the lender, set the state of the trade to FINANCED and start the time
     trades[trade_id].lender = msg.sender;

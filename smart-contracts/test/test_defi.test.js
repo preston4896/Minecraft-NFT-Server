@@ -60,11 +60,27 @@ contract("DeFi", (accounts) => {
         let trade_1 = await defi.openTrade(2, borrower_1, 1000, apy, {from: borrower_1});
         assert.equal(trade_1.logs[0].args.trade_id.toNumber(), expected_trade_id, "trade id should match.");
 
-        // // borrower 2 attempts to open a loan of 1000 tokens using nft #2 as collatoral -- expected to fail.
-        // try {
-        //     await defi.openTrade(2, borrower_2, 1000, apy);
-        // } catch (error) {
-        //     assert(error.message.indexOf("revert") >= 0, "error message must contain revert.");
-        // }
+        // borrower 2 attempts to open a loan of 1000 tokens using nft #2 as collatoral -- expected to fail.
+        try {
+            await defi.openTrade(2, borrower_2, 1000, apy, {from: borrower_2});
+        } catch (error) {
+            assert(error.message.indexOf("revert") >= 0, "error message must contain revert.");
+        }
+
+        // borrower 1 begins loan.
+        let loan_1 = await defi.lendToTrade.call(expected_trade_id, {from: lender});
+        // verify loan
+        assert.equal(loan_1, true);
+        // verify contract balance.
+        let contract_address = defi.address;
+        let contract_nft_balance = await tokens.balanceOf(contract_address, 2);
+        assert.equal(contract_nft_balance, 1);
+        let contract_fungible_balance = await tokens.balanceOf(contract_address, 0);
+        assert.equal(contract_fungible_balance, 1000);
+        // verify lender and borrower balances.
+        let b1_nft_balance = await tokens.balanceOf(borrower_1, 2);
+        assert.equal(b1_nft_balance, 0);
+        let lender_fungible_balance = await tokens.balanceOf(lender, 0);
+        assert.equal(lender_fungible_balance, 9000);
     })
 })
