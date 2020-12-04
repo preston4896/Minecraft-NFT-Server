@@ -54,17 +54,17 @@ contract("DeFi", (accounts) => {
         assert.equal(actual_token_address, expected_token_address, "Address should match.");
     })
 
-    // it("3. Test Open Trade, Then Begin Lending.", async() => {
-    //     // borrower 1 opens a loan of 1000 tokens and used nft #2 as collatoral.
-    //     let expected_trade_id = 0;
-    //     let trade_1 = await defi.openTrade(2, borrower_1, 1000, apy, {from: borrower_1});
-    //     assert.equal(trade_1.logs[0].args.trade_id.toNumber(), expected_trade_id, "trade id should match.");
+    it("4. Test Open Trade, Then Begin Lending.", async() => {
+        // borrower 1 opens a loan of 1000 tokens and used nft #2 as collatoral.
+        let expected_trade_id = 0;
+        let trade_1 = await defi.openTrade(2, borrower_1, 1000, apy, {from: borrower_1});
+        assert.equal(trade_1.logs[0].args.trade_id.toNumber(), expected_trade_id, "trade id should match.");
 
-    //     // // borrower 2 attempts to open a loan of 1000 tokens using nft #2 as collatoral -- expected to fail.
-    //     // try {
-    //     //     await defi.openTrade(2, borrower_2, 1000, apy);
-    //     // } catch (error) {
-    //     //     assert(error.message.indexOf("revert") >= 0, "error message must contain revert.");
-    //     // }
-    // })
+        // // borrower 2 attempts to open a loan of 1000 tokens using nft #2 as collatoral -- expected to fail.
+        // try {
+        //     await defi.openTrade(2, borrower_2, 1000, apy);
+        // } catch (error) {
+        //     assert(error.message.indexOf("revert") >= 0, "error message must contain revert.");
+        // }
+    })
 })
