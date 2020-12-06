@@ -58,6 +58,10 @@ contract DeFi {
     trades[trade_id] = Trade(nft_id, address(0x0), borrower, borrowing_amount, apy, 0, 0, State.OPEN);
     trade_ids++; // Increase the trade id by 1 for the next trade
 
+    // Give the contract permission to transfer the borrowers NFT tokens
+    // NOTE: Code for this is temporary and for testing-only
+    setApprovalForAll(address(this), true)
+
     // Emit that a trade has been opened
     emit OpenedTrade(trade_id); 
     return trade_id;
@@ -79,7 +83,7 @@ contract DeFi {
     // Transfer the NFT from the borrower to this contract
     tokensContract.safeTransferFrom(trades[trade_id].borrower, address(this), trades[trade_id].nft_id, 1, "0x0");
     // Transfer the Fungible tokens from the lender to this contract
-    tokensContract.safeTransferFrom(trades[trade_id].lender, address(this), 0, trades[trade_id].borrowing_amount, "0x0");
+    tokensContract.safeTransferFrom(msg.sender, address(this), 0, trades[trade_id].borrowing_amount, "0x0");
 
     // Emit that the trade has been financed
     emit TradeFinanced(trade_id);
