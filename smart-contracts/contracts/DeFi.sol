@@ -100,11 +100,11 @@ contract DeFi is ERC1155Holder {
 
   function payInterest(uint256 trade_id, uint256 amount) public returns (bool) {
     // Make sure the state of the trade is FINANCED
-    require(trades[trade_id].state == State.FINANCED);
+    require(trades[trade_id].state == State.FINANCED, "Caller is not currently on a FINANCED state.");
     // Make sure the caller is the trade's borrower
-    require(msg.sender == trades[trade_id].borrower);
+    require(msg.sender == trades[trade_id].borrower, "Caller is not the borrower.");
     // Make sure the borrower has enough funds
-    require(tokensContract.balanceOf(msg.sender, 0) >= amount);
+    require(tokensContract.balanceOf(msg.sender, 0) >= amount, "Caller has insufficient balance.");
 
     trades[trade_id].paid_back_amount += amount;
     tokensContract.safeTransferFrom(msg.sender, address(this), 0, amount, "0x0");
@@ -130,8 +130,8 @@ contract DeFi is ERC1155Holder {
 
   function completeTrade(uint256 trade_id) private returns (bool) {
     // Makes sure the contract still has the NFT and the money - Theoretically always true
-    require(tokensContract.balanceOf(address(this), trades[trade_id].nft_id) >= 1);
-    require(tokensContract.balanceOf(address(this), 0) >= trades[trade_id].paid_back_amount);
+    require(tokensContract.balanceOf(address(this), trades[trade_id].nft_id) >= 1, "Contract does not have sufficient NFT.");
+    require(tokensContract.balanceOf(address(this), 0) >= trades[trade_id].paid_back_amount, "Contract does not have sufficient fungible tokens.");
 
     // Transfer the NFT and fungible tokens from the contract to the borrower and lender respectively
     tokensContract.safeTransferFrom(address(this), trades[trade_id].borrower, trades[trade_id].nft_id, 1, "0x0");  

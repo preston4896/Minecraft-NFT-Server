@@ -135,4 +135,47 @@ contract("DeFi", (accounts) => {
         let lender_fungible_balance = await tokens.balanceOf(lender, 0);
         assert.equal(lender_fungible_balance.toNumber(), 9000);
     })
+
+    it("7. TODO: Borrower 2 uncollateralize nft tokens.", async() => {
+        // TODO
+        assert(true);
+    })
+
+    it("8. Borrower 1 pays partial loan.", async() => {
+        // verify borrow 1's info.
+        let b1 = await defi.trades(0);
+
+        assert.equal(b1.nft_id, 1, "NFT #1");
+        assert.equal(b1.lender, lender, "Lender address should match.");
+        assert.equal(b1.borrower, borrower_1, "Borrower address should match.");
+        assert.equal(b1.borrowing_amount, 1000, "1000 tokens loan.");
+        assert.equal(b1.paid_back_amount, 0, "No payment has been made yet.");
+        assert.equal(b1.state, 1, "FINANCED state.");
+
+        // borrower 1 attempts to pay loan without funds.
+        try {
+            await defi.payInterest(0, 500);
+        } catch (error) {
+            assert(error.message.indexOf("revert") >= 0, "error message must contain revert.");
+        }
+
+        // borrower 1 pays 50% (500 tokens) of the loan.
+        await tokens.safeTransferFrom(reserve, borrower_1, 0, 2000, "0x0");
+        await defi.payInterest(0, 500, {from: borrower_1});
+
+        // verify contract balance.
+        let contract_fungible_balance = await tokens.balanceOf(defi.address, 0);
+        assert.equal(contract_fungible_balance, 1500);
+
+        // verify borrower 1's balance.
+        let b1_fungible_balance = await tokens.balanceOf(borrower_1, 0);
+        assert.equal(b1_fungible_balance, 1500);
+
+        // verify amount paid by borrower 1
+        b1 = await defi.trades(0); // update.
+        assert.equal(b1.paid_back_amount, 500);
+
+        // borrower i is still in loan.
+        assert.equal(b1.state, 1);
+    })
 })
