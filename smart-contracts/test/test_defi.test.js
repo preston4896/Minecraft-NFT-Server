@@ -25,6 +25,8 @@ contract("DeFi", (accounts) => {
     })
 
     it("2. Initialize The Test By Distributing NFTs to Borrowers and Fungible Tokens to Lenders.", async() => {
+        // NOTE: It is advisable for the minted tokens to be immediately transferred to the DeFi contract when deployed.
+        // For the simplicity of this test, the "reserve" account is holding the entire supply of the tokens.
         // lender is given 10000 fungible tokens.
         // borrower 1 is given one of nft #1 and nft #2 each.
         // borrower 2 is given one nft #2.
@@ -122,7 +124,7 @@ contract("DeFi", (accounts) => {
     })
 
     it("6. Borrower attempts to open excess loan.", async() => {
-        await defi.openTrade(2, borrower_2, 10000, apy, {from: borrower_2});
+        await defi.openTrade(2, borrower_1, 10000, apy, {from: borrower_1});
 
         // lender attempts to finance the borrower. -- expected to fail
         try {
@@ -134,14 +136,16 @@ contract("DeFi", (accounts) => {
         // lender still has 9000 fungible tokens.
         let lender_fungible_balance = await tokens.balanceOf(lender, 0);
         assert.equal(lender_fungible_balance.toNumber(), 9000);
+
+        // IMPORTANT: Borrower should be able to cancel their loans while they still can.
     })
 
-    it("7. TODO: Borrower 2 uncollateralize nft tokens.", async() => {
+    it("TODO: Borrower 2 uncollateralize nft tokens.", async() => {
         // TODO
         assert(true);
     })
 
-    it("8. Borrower 1 pays partial loan.", async() => {
+    it("7. Borrower 1 pays partial loan.", async() => {
         // verify borrow 1's info.
         let b1 = await defi.trades(0);
 
@@ -179,27 +183,79 @@ contract("DeFi", (accounts) => {
         assert.equal(b1.state, 1);
     })
 
-    it("9. Borrower 1 pays 75% of the loan.", async() => {
+    it("8. Borrower 1 pays the remainder and completes the loan.", async() => {
         let b1 = await defi.trades(0);
 
         // pays another 50% of the loan.
-        await defi.payInterest(0, 250, {from: borrower_1});
-
-        // verify contract balance.
-        let contract_fungible_balance = await tokens.balanceOf(defi.address, 0);
-        assert.equal(contract_fungible_balance.toNumber(), 1750);
+        await defi.payInterest(0, 500, {from: borrower_1});
 
         // verify borrower 1's balance.
         let b1_fungible_balance = await tokens.balanceOf(borrower_1, 0);
-        assert.equal(b1_fungible_balance.toNumber(), 1250);
+        assert.equal(b1_fungible_balance.toNumber(), 1000);
 
         // verify amount paid by borrower 1
         b1 = await defi.trades(0); // update.
-        assert.equal(b1.paid_back_amount.toNumber(), 750);
+        assert.equal(b1.paid_back_amount.toNumber(), 1000);
 
-        // borrower i is still in loan. -- because interest is not paid yet.
-        assert.equal(b1.state, 1);
+        // borrower 1 closes loan
+        assert.equal(b1.state, 3);
+
+        // verify nft token returned to borrow 1.
+        let b1_nft = await tokens.balanceOf(borrower_1, 1);
+        assert.equal(b1_nft, 1);
+
+        // verify lender received their funds.
+        let lender_fund = await tokens.balanceOf(lender, 0);
+        assert.equal(lender_fund, 10000);
+
+        // contract no longer is in possession of the tokens.
+        let contract_fungible = await tokens.balanceOf(defi.address, 0);
+        assert.equal(contract_fungible, 1000); 
+        let contract_nft = await tokens.balanceOf(defi.address, 1);
+        assert.equal(contract_nft, 0);
     })
 
-    
+    it("9: Borrower 2 takes a loan and gets liquidated.", async() => {
+        await defi.openTrade(2, borrower_2, 2000, apy, {from: borrower_2});
+
+        // verify collateral
+        let b2_nft = await tokens.balanceOf(borrower_2, 2);
+        assert.equal(b2_nft, 0);
+        let b2_collateral = await tokens.balanceOf(defi.address, 2);
+        assert.equal(b2_collateral, 2); // See test case #6
+
+        // begin loan
+        await defi.lendToTrade(2, {from: lender});
+
+        // verify lender balance
+        let lender_balance = await tokens.balanceOf(lender, 0);
+        assert.equal(lender_balance, 8000);
+        let contract_fungible = await tokens.balanceOf(defi.address, 0);
+        assert.equal(contract_fungible, 3000);
+
+        // liquidate trade.
+        let trade = await defi.trades(2);
+        await defi.liquidateTrade(2, {from: lender});
+
+        // borrower 2 does not pay back any loans.
+        assert.equal(trade.paid_back_amount, 0);
+
+        // verify lender balance
+        let lender_nft = await tokens.balanceOf(lender, 2);
+        assert.equal(lender_nft, 1);
+        let lender_fungible = await tokens.balanceOf(lender, 0);
+        assert.equal(lender_fungible, 8000);
+
+        // contract no longer has possession of collateral
+        b2_collateral = await tokens.balanceOf(defi.address, 2);
+        assert.equal(b2_collateral, 1); // See test case #6
+    })
+
+    it("10. Lender attempts to fraudently finance a loan.", async() => {
+        try {
+            await defi.lendToTrade(0, {from: lender});
+        } catch (error) {
+            assert(error.message.indexOf("revert") >= 0, "error message must contain revert.");
+        }
+    })
 })
