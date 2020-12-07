@@ -16,7 +16,7 @@ contract("DeFi", (accounts) => {
         defi = await DeFi.deployed();
     })
 
-    it("1. Prior Test Initialization. Borrower Attempts To Open Trade Without NFT Token", async() => {
+    it("1. Prior Test Initialization. Borrower Attempts To Open Trade Without NFT Token.", async() => {
         try {
             await defi.openTrade(1, borrower_1, 20, apy);
         } catch (error) {
@@ -24,7 +24,7 @@ contract("DeFi", (accounts) => {
         }
     })
 
-    it("2. Initialize The Test By Distributing NFTs to Borrowers and Fungible Tokens to Lenders", async() => {
+    it("2. Initialize The Test By Distributing NFTs to Borrowers and Fungible Tokens to Lenders.", async() => {
         // lender is given 10000 fungible tokens.
         // borrower 1 is given one of nft #1 and nft #2 each.
         // borrower 2 is given one nft #2.
@@ -52,14 +52,14 @@ contract("DeFi", (accounts) => {
         assert.equal(b2_balance, 1);
     })
 
-    it("3. Test Token Contract Address", async() => {
+    it("3. Test Token Contract Address.", async() => {
         let actual_token_address = tokens.address;
         let expected_token_address = await defi.tokensContract();
         assert.equal(actual_token_address, expected_token_address, "Address should match.");
     })
 
     // IMPORTANT: For some reason, the remainder of the test will fail if this part of the test is not executed.
-    it("IMPORTANT: Granting contract permission for ownership", async() => {
+    it("IMPORTANT: Granting contract permission for ownership.", async() => {
         // permission from lender.
         await tokens.setApprovalForAll(defi.address, true, {from: lender});
         let lenderPermission = await tokens.isApprovedForAll(lender, defi.address);
@@ -76,7 +76,7 @@ contract("DeFi", (accounts) => {
         assert.equal(b2Permission, true);
     })
 
-    it("4. Test Open Trade", async() => {
+    it("4. Test Open Trade.", async() => {
         // borrower 1 opens a loan of 1000 tokens and used nft #2 as collatoral.
         await defi.openTrade(1, borrower_1, 1000, apy, {from: borrower_1});
 
@@ -178,4 +178,28 @@ contract("DeFi", (accounts) => {
         // borrower i is still in loan.
         assert.equal(b1.state, 1);
     })
+
+    it("9. Borrower 1 pays 75% of the loan.", async() => {
+        let b1 = await defi.trades(0);
+
+        // pays another 50% of the loan.
+        await defi.payInterest(0, 250, {from: borrower_1});
+
+        // verify contract balance.
+        let contract_fungible_balance = await tokens.balanceOf(defi.address, 0);
+        assert.equal(contract_fungible_balance.toNumber(), 1750);
+
+        // verify borrower 1's balance.
+        let b1_fungible_balance = await tokens.balanceOf(borrower_1, 0);
+        assert.equal(b1_fungible_balance.toNumber(), 1250);
+
+        // verify amount paid by borrower 1
+        b1 = await defi.trades(0); // update.
+        assert.equal(b1.paid_back_amount.toNumber(), 750);
+
+        // borrower i is still in loan. -- because interest is not paid yet.
+        assert.equal(b1.state, 1);
+    })
+
+    
 })
