@@ -2,12 +2,13 @@
 
 pragma solidity ^0.6.0;
 
-// import "@openzeppelin/contracts/token/ERC1155/ERC1155Holder.sol"; // uncomment this to implement.
+import "@openzeppelin/contracts/token/ERC1155/ERC1155Holder.sol";
 import "./Tokens.sol";
 
-contract DeFi {
+contract DeFi is ERC1155Holder {
   uint256 trade_ids;
   Tokens public tokensContract;
+  // address admin;
 
   // Trade data struct 
   struct Trade {
@@ -45,11 +46,12 @@ contract DeFi {
   constructor(address _address) public {
     tokensContract = Tokens(_address);
     trade_ids = 0;
+    // admin = msg.sender;
   }
 
   function openTrade(uint256 nft_id, address borrower, uint256 borrowing_amount, uint256 apy) public returns (uint256) {
     // verify borrower.
-    require(msg.sender == borrower, "Not the borrower");
+    require(msg.sender == borrower, "Unauthorized Function Call.");
     // Check if the borrower has atleast one of NFT
     require(tokensContract.balanceOf(borrower, nft_id) >= 1, "Insufficient NFT balance");
     
@@ -60,7 +62,11 @@ contract DeFi {
 
     // Give the contract permission to transfer the borrowers NFT tokens
     // NOTE: Code for this is temporary and for testing-only
-    setApprovalForAll(address(this), true)
+    // tokensContract.setApprovalForAll(address(this), true);
+
+    // Transfer the NFT from the borrower to this contract
+    tokensContract.safeTransferFrom(msg.sender, address(this), nft_id, 1, "0x0");
+    onERC1155Received(msg.sender, borrower, nft_id, 1, "0x0");
 
     // Emit that a trade has been opened
     emit OpenedTrade(trade_id); 
@@ -70,8 +76,8 @@ contract DeFi {
   function lendToTrade(uint256 trade_id) public returns (bool) {
     // Check if the trade is still open
     require(trades[trade_id].state == State.OPEN, "Trade not open.");
-    // Check if the borrower still has the NFT
-    require(tokensContract.balanceOf(trades[trade_id].borrower, trades[trade_id].nft_id) >= 1, "Borrower does not have collatoral.");
+    // // Check if the borrower still has the NFT
+    // require(tokensContract.balanceOf(trades[trade_id].borrower, trades[trade_id].nft_id) >= 1, "Borrower does not have collatoral.");
     // Check if the lender has that much Fungible tokens
     require(tokensContract.balanceOf(msg.sender, 0) >= trades[trade_id].borrowing_amount, "Lender does not have sufficient fundings.");
 
@@ -80,8 +86,10 @@ contract DeFi {
     trades[trade_id].state = State.FINANCED;
     trades[trade_id].start_time = now;
 
-    // Transfer the NFT from the borrower to this contract
-    tokensContract.safeTransferFrom(trades[trade_id].borrower, address(this), trades[trade_id].nft_id, 1, "0x0");
+    // // Give the contract permission to transfer the lenders fungible tokens
+    // // NOTE: Code for this is temporary and for testing-only
+    // tokensContract.setApprovalForAll(address(this), true);
+
     // Transfer the Fungible tokens from the lender to this contract
     tokensContract.safeTransferFrom(msg.sender, address(this), 0, trades[trade_id].borrowing_amount, "0x0");
 
