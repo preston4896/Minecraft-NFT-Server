@@ -60,7 +60,9 @@ contract("DeFi", (accounts) => {
         assert.equal(actual_token_address, expected_token_address, "Address should match.");
     })
 
-    // IMPORTANT: For some reason, the remainder of the test will fail if this part of the test is not executed.
+    // IMPORTANT: the remainder of the test will fail if this part of the test is not executed.
+    // Suggestion: @mw2000 consider adding these functions from the front-end with a trigger.
+    // So to make sure the user can only approves the contract to move their tokens, after a click of a button.
     it("IMPORTANT: Granting contract permission for ownership.", async() => {
         // permission from lender.
         await tokens.setApprovalForAll(defi.address, true, {from: lender});
