@@ -25,7 +25,6 @@ contract("DeFi", (accounts) => {
     })
 
     it("2. Initialize The Test By Distributing NFTs to Borrowers and Fungible Tokens to Lenders.", async() => {
-        // NOTE: It is advisable for the minted tokens to be immediately transferred to the DeFi contract when deployed.
         // For the simplicity of this test, the "reserve" account is holding the entire supply of the tokens.
         // lender is given 10000 fungible tokens.
         // borrower 1 is given one of nft #1 and nft #2 each.
