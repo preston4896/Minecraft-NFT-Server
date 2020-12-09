@@ -1,0 +1,19 @@
+{
+    "ignore": [
+        "./api",
+        "./blob",
+        "./front-end",
+        "./tests",
+        ".gitignore",
+        "LICENSE",
+        "README.md"
+    ],
+    "commands": {
+        "Compile": "truffle compile",
+        "Migrate": "truffle migrate",
+        "Test contracts": "truffle test"
+    },
+    "hooks": {
+        "post-unpack": "npm install"
+    }
+}
