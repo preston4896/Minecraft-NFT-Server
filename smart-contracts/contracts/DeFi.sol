@@ -106,7 +106,9 @@ contract DeFi is ERC1155Holder {
     // Make sure the borrower has enough funds
     require(tokensContract.balanceOf(msg.sender, 0) >= amount, "Caller has insufficient balance.");
 
+    // Add the interest to the total amount paid back
     trades[trade_id].paid_back_amount += amount;
+
     tokensContract.safeTransferFrom(msg.sender, address(this), 0, amount, "0x0");
     emit PaidInterest(trade_id, amount);
 
@@ -150,13 +152,12 @@ contract DeFi is ERC1155Holder {
 
     // Amount to be paid by the borrower to the lender
     uint256 seconds_since_start = now - trades[trade_id].start_time;
-    uint256 amount_to_be_paid = trades[trade_id].borrowing_amount * (uint256(3) ** ((seconds_since_start/31556952) 
-      * trades[trade_id].apy));
+    uint256 amount_to_be_paid = (trades[trade_id].borrowing_amount * (uint256(3) ** ((seconds_since_start/31556952) 
+      * trades[trade_id].apy)) - trades[trade_id].paid_back_amount);
 
-    // Condition for liquidity still not determined. For the purpose of initial testing, trade can be liquidated any time.
-    // Later on we need to make so after x amount of interest is acrued, then the contract can be liquidated
+    // Condition for liquidity is if the amount to be paid exceeds the amount + monthly interest, the trade can be liquidated
 
-    bool can_be_liquidated = true;
+    bool can_be_liquidated = amount_to_be_paid > (trades[trade_id].borrowing_amount * trades[trade_id].apy/12) + trades[trade_id].borrowing_amount  ;
 
     if (can_be_liquidated) {
       // Makes sure the contract still has the NFT and the money - Theoretically always true
