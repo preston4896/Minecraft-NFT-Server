@@ -216,6 +216,9 @@ contract("DeFi", (accounts) => {
         assert.equal(contract_nft, 0);
     })
 
+    // TODO: Add test for interest.
+
+    // TODO: Liquidating loans are time dependent.
     it("9: Borrower 2 takes a loan and gets liquidated.", async() => {
         await defi.openTrade(2, borrower_2, 2000, apy, {from: borrower_2});
 
