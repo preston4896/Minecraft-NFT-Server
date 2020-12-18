@@ -21,4 +21,5 @@ contract Tokens is ERC1155 {
         _mint(msg.sender, SWORD, SWORD_total_supply, ""); // NFT token that has only 5 copies
         _mint(msg.sender, LUCKY_POTION, LUCKY_POTION_total_supply, ""); // NFT token that has only 2 copies
         _mint(msg.sender, GOVERNANCE, GOVERNANCE_total_supply, ""); // Governance token
+    }
 }
