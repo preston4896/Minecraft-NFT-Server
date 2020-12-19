@@ -146,6 +146,8 @@ contract("DeFi", (accounts) => {
         assert(true);
     })
 
+    // TODO: Add test for interest.
+
     it("7. Borrower 1 pays partial loan.", async() => {
         // verify borrow 1's info.
         let b1 = await defi.trades(0);
@@ -215,8 +217,6 @@ contract("DeFi", (accounts) => {
         let contract_nft = await tokens.balanceOf(defi.address, 1);
         assert.equal(contract_nft, 0);
     })
-
-    // TODO: Add test for interest.
 
     // TODO: Liquidating loans are time dependent.
     it("9: Borrower 2 takes a loan and gets liquidated.", async() => {

@@ -18,7 +18,7 @@ contract Governance {
   }
 
   // Mapping proposal ids to Proposal
-  mapping(uint256 => Proposal) proposals;
+  mapping(uint256 => Proposal) public proposals;
 
   // A proposal was created by a user owning > 100 governance tokens
   event ProposalCreated(uint256 proposal_id);
@@ -32,7 +32,7 @@ contract Governance {
 
   // Babylonian method of square root computation
   // https://ethereum.stackexchange.com/questions/2910/can-i-square-root-in-solidity
-  function sqrt(uint256 x) internal pure returns (uint256 y) {
+  function sqrt(uint256 x) public pure returns (uint256 y) {
     uint256 z = (x + 1) / 2;
     y = x;
     while (z < y) {
@@ -44,17 +44,21 @@ contract Governance {
   function createProposal(uint256 end_date, bytes32[140] memory description) public returns(uint256) {
     // Find out a way to require that the proposal creator has the most amount of tokens
     // Currently requires that the user has a governance token balance >= 100
-    require(tokensContract.balanceOf(msg.sender, 3) < 100, "Insufficient Governance tokens");
+    require(tokensContract.balanceOf(msg.sender, 3) >= 100, "Insufficient Governance tokens");
 
     // Get the proposal id
     uint256 proposal_id = proposal_ids;
 
     // Create a new proposal
-    proposals[proposal_id] = Proposal({
-      start_date: now,
-      end_date: end_date,
-      description: description
-    });
+    Proposal memory newProposal = Proposal(
+      {
+        start_date: now,
+        end_date: end_date,
+        description: description
+      }
+    );
+
+    proposals[proposal_id] = newProposal;
 
     // Increment proposal ids count
     proposal_ids++;
@@ -66,7 +70,7 @@ contract Governance {
 
   function voteAgainstProposal(uint256 proposal_id) public returns (bool) {
     // Require the proposal is still open for voting
-    require(proposals[proposal_id].end_date > now);
+    require(proposals[proposal_id].end_date > now, "Too late to vote.");
     // Voter governance token balance should be greater than or equal to 1
     require(tokensContract.balanceOf(msg.sender, 3) >= 1, "Voter balance too low");
     // Voter cannot revote if he has voted for "for proposal"
@@ -75,7 +79,8 @@ contract Governance {
     require(proposals[proposal_id].votes_against[msg.sender] == uint256(0));
 
     // Assign votes to the proposal
-    proposals[proposal_id].votes_against[msg.sender] = sqrt(tokensContract.balanceOf(msg.sender, 3));
+    Proposal storage proposal = proposals[proposal_id];
+    proposal.votes_against[msg.sender] = sqrt(tokensContract.balanceOf(msg.sender, 3));
 
     // Emit the voting event
     emit Vote(proposal_id, msg.sender);
@@ -84,7 +89,7 @@ contract Governance {
 
   function voteForProposal(uint256 proposal_id) public returns (bool) {
     // Require the proposal is still open for voting
-    require(proposals[proposal_id].end_date > now);
+    require(proposals[proposal_id].end_date > now, "Too late to vote.");
     // Voter governance token balance should be greater than or equal to 1
     require(tokensContract.balanceOf(msg.sender, 3) >= 1, "Voter balance too low");
     // Voter cannot revote if he has voted for "for proposal"
@@ -93,11 +98,11 @@ contract Governance {
     require(proposals[proposal_id].votes_against[msg.sender] == uint256(0));
 
     // Assign votes to the proposal
-    proposals[proposal_id].votes_for[msg.sender] = sqrt(tokensContract.balanceOf(msg.sender, 3));
+    Proposal storage proposal = proposals[proposal_id];
+    proposal.votes_for[msg.sender] = sqrt(tokensContract.balanceOf(msg.sender, 3));
 
     // Emit the voting event
     emit Vote(proposal_id, msg.sender);
     return true;
   }
-
 }
