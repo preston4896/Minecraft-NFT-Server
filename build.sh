@@ -1,4 +1,4 @@
 #!/bin/sh
 cd ./smart-contracts
-ganache-cli
+ganache-cli -p 7545 &
 truffle test
