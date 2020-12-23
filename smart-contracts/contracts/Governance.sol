@@ -74,7 +74,7 @@ contract Governance {
 
     // Assign votes to the proposal
     Proposal storage proposal = proposals[proposal_id];
-    proposal.votes_against = sqrt(tokensContract.balanceOf(msg.sender, 3));
+    proposal.votes_against += sqrt(tokensContract.balanceOf(msg.sender, 3));
 
     // voted.
     proposal_voted[msg.sender][proposal_id] = true;
@@ -94,7 +94,7 @@ contract Governance {
 
     // Assign votes to the proposal
     Proposal storage proposal = proposals[proposal_id];
-    proposal.votes_for = sqrt(tokensContract.balanceOf(msg.sender, 3));
+    proposal.votes_for += sqrt(tokensContract.balanceOf(msg.sender, 3));
     
     // voted.
     proposal_voted[msg.sender][proposal_id] = true;

@@ -97,5 +97,26 @@ contract("Governance", (accounts) => {
         let voted_1_prop_0 = await gov.verify_votes(voted_against, 0);
         let voted_0_prop_1 = await gov.verify_votes(voted_for, 1);
         let voted_1_prop_1 = await gov.verify_votes(voted_against, 1);
+
+        // double voting attempts (conflicting votes).
+        try {
+            await gov.voteForProposal(0, {from: voted_against});
+        } catch(error) {
+            assert(error.message.indexOf("revert") >= 0, "error message must contain revert.");
+        }
+
+        try {
+            await gov.voteAgainstProposal(0, {from: voted_for});
+        } catch (error) {
+            assert(error.message.indexOf("revert") >= 0, "error message must contain revert.");
+        }
+
+        // check square roots.
+        await gov.voteForProposal(0, {from: proposer});
+        pro_0 = await gov.proposals(0);
+
+        // total = sqrt(1) + sqrt(100) = 11;
+        let expected_total = 11;
+        assert.equal(pro_0.votes_for, 11);
     })
 })
