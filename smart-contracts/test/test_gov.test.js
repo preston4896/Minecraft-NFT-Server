@@ -97,6 +97,13 @@ contract("Governance", (accounts) => {
         let voted_1_prop_0 = await gov.verify_votes(voted_against, 0);
         let voted_0_prop_1 = await gov.verify_votes(voted_for, 1);
         let voted_1_prop_1 = await gov.verify_votes(voted_against, 1);
+        let voted_0_acc_4 = await gov.verify_votes(accounts[4], 0);
+
+        assert.equal(voted_0_prop_0, true);
+        assert.equal(voted_1_prop_0, true);
+        assert.equal(voted_0_prop_1, true);
+        assert.equal(voted_1_prop_1, true);
+        assert.equal(voted_0_acc_4, false);
 
         // double voting attempts (conflicting votes).
         try {
@@ -117,6 +124,6 @@ contract("Governance", (accounts) => {
 
         // total = sqrt(1) + sqrt(100) = 11;
         let expected_total = 11;
-        assert.equal(pro_0.votes_for, 11);
+        assert.equal(pro_0.votes_for, expected_total);
     })
 })
