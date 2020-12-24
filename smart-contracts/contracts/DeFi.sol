@@ -8,7 +8,6 @@ import "./Tokens.sol";
 contract DeFi is ERC1155Holder {
   uint256 trade_ids;
   Tokens public tokensContract;
-  // address admin;
 
   // Trade data struct 
   struct Trade {
@@ -46,7 +45,6 @@ contract DeFi is ERC1155Holder {
   constructor(address _address) public {
     tokensContract = Tokens(_address);
     trade_ids = 0;
-    // admin = msg.sender;
   }
 
   function openTrade(uint256 nft_id, address borrower, uint256 borrowing_amount, uint256 apy) public returns (uint256) {

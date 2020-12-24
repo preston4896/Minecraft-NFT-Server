@@ -141,11 +141,6 @@ contract("DeFi", (accounts) => {
         // IMPORTANT: Borrower should be able to cancel their loans while they still can.
     })
 
-    it("TODO: Borrower 2 uncollateralize nft tokens.", async() => {
-        // TODO
-        assert(true);
-    })
-
     // TODO: Add test for interest.
 
     it("7. Borrower 1 pays partial loan.", async() => {
