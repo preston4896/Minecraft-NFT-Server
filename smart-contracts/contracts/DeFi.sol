@@ -162,9 +162,14 @@ contract DeFi is ERC1155Holder {
       require(tokensContract.balanceOf(address(this), trades[trade_id].nft_id) >= 1);
       require(tokensContract.balanceOf(address(this), 0) >= trades[trade_id].paid_back_amount);
 
+      // Transfer the tokens to the lender
       tokensContract.safeTransferFrom(address(this), trades[trade_id].lender, trades[trade_id].nft_id, 1, "0x0");  
       tokensContract.safeTransferFrom(address(this), trades[trade_id].lender, 0, trades[trade_id].paid_back_amount, "0x0");  
 
+      // Set trade to close state
+      trades[trade_id].state = State.LIQUIDATED;
+
+      // Emit the liquidate trade event
       emit LiquidatedTrade(trade_id);
     } else {
       return false;
