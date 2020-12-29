@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract Tokens is ERC1155 {
     // Token ids
-    uint256 token_ids;
+    uint256 public token_ids;
 
     // Constant Token ids
     // Emeralds is the fungible tokens to be used
