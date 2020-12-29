@@ -25,6 +25,9 @@ contract("DeFi", (accounts) => {
     })
 
     it("2. Initialize The Test By Distributing NFTs to Borrowers and Fungible Tokens to Lenders.", async() => {
+        // First, mint token id #2.
+        await tokens.mint(10);
+        
         // For the simplicity of this test, the "reserve" account is holding the entire supply of the tokens.
         // lender is given 10000 fungible tokens.
         // borrower 1 is given one of nft #1 and nft #2 each.
@@ -241,7 +244,7 @@ contract("DeFi", (accounts) => {
 
         // verify lender balance
         let lender_nft = await tokens.balanceOf(lender, 2);
-        assert.equal(lender_nft, 1);
+        assert.equal(lender_nft, 1); // FAILED: Borrower does not get liquidated. TODO: this is a future event.
         let lender_fungible = await tokens.balanceOf(lender, 0);
         assert.equal(lender_fungible, 8000);
 
