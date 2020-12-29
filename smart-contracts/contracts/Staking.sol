@@ -13,6 +13,9 @@ contract Staking is ERC1155Holder{
   mapping (address => uint256) public lastUpdateTime;
   mapping (uint256 => uint256) public nft_cost;
 
+  // owner of the contract
+  address owner;
+
   // A user has staked his/her tokens
   event Staked(address user, uint256 amount);
   // A user has unstaked his/her tokens
@@ -21,6 +24,12 @@ contract Staking is ERC1155Holder{
   event Redeemed(address indexed user, uint256 amount);
   // An NFT token was added to the project
   event NFTAdded(uint256 nft_id, uint256 points);
+
+  // initialize token contract and assign contract ownership.
+  constructor (address _address) public {
+    tokensContract = Tokens(_address);
+    owner = msg.sender;
+  }
 
   // Updates the count of points rewarded
   modifier updateReward(address account) {
@@ -52,7 +61,7 @@ contract Staking is ERC1155Holder{
 		return
 			points[account] + (
 				blockTime - (lastUpdateTime[account]) * (1e18) / (86400) * (
-					(balanceOf(account) * (25000)) / (1e18)
+					(tokensContract.balanceOf(account, 0) * (25000)) / (1e18)
 				)
 			);
 	}

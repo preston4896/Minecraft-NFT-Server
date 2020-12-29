@@ -27,7 +27,7 @@ contract Tokens is ERC1155 {
     }
 
     // Wrapper around the ERC 1155 minting function. Mints an NFT token and assigns an ID to it
-    function mint(uint256 total_supply) returns (uint256) {
+    function mint(uint256 total_supply) public returns (uint256) {
         // Get the current available id
         uint256 nft_id = token_ids; 
         // Minting the token
