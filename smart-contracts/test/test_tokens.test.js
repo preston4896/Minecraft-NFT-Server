@@ -26,7 +26,7 @@ contract("Tokens", (accounts) => {
             await tokens.mint(supply);
             
             // verify number of tokens type.
-            num_of_tokens = await tokens.token_ids();
+            num_of_tokens = await await tokens.get_num_of_token_types.call();
 
             assert.equal(num_of_tokens, 3, "There should be 3 token types.");
         })
@@ -58,7 +58,7 @@ contract("Tokens", (accounts) => {
         it("3. Test BatchTransfer.", async() => {
             let fromAcc = accounts[1];
             let toAcc = accounts[0];
-            let batch_ids = new Array(num_of_tokens).fill(0).map((e,i) => {return i;});
+            let batch_ids = new Array(num_of_tokens.toNumber()).fill(0).map((e,i) => {return i;});
 
             // account 1 attempts to batch transfer with zero balance.
             try {
@@ -73,8 +73,8 @@ contract("Tokens", (accounts) => {
             await tokens.safeBatchTransferFrom(fromAcc, toAcc, batch_ids, max_arr, "0x0", {from: fromAcc});
 
             // verify balance.
-            let batch_from = new Array(num_of_tokens).fill(fromAcc);
-            let batch_to = new Array(num_of_tokens).fill(toAcc);
+            let batch_from = new Array(num_of_tokens.toNumber()).fill(fromAcc);
+            let batch_to = new Array(num_of_tokens.toNumber()).fill(toAcc);
             let from_balance = await tokens.balanceOfBatch(batch_from, batch_ids);
             let to_balance = await tokens.balanceOfBatch(batch_to, batch_ids);
 
@@ -91,7 +91,7 @@ contract("Tokens", (accounts) => {
             const MAX_MINTED = await tokens.balanceOf(accounts[0], 2);
             let max_arr = [MAX_EMERALDS, MAX_GOV, MAX_MINTED];
             let arr_75 = max_arr.map((e) => {return Math.floor(e * 0.75);});
-            let batch_ids = new Array(num_of_tokens).fill(0).map((e,i) => {return i;});
+            let batch_ids = new Array(num_of_tokens.toNumber()).fill(0).map((e,i) => {return i;});
 
             // account 1 attempts to transfer prior approval.
             try {
