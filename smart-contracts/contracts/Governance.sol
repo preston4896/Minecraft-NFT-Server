@@ -46,7 +46,7 @@ contract Governance {
   function createProposal(uint256 end_date, bytes32 description) public returns(uint256) {
     // Find out a way to require that the proposal creator has the most amount of tokens
     // Currently requires that the user has a governance token balance >= 100
-    require(tokensContract.balanceOf(msg.sender, 3) >= 100, "Insufficient Governance tokens");
+    require(tokensContract.balanceOf(msg.sender, 1) >= 100, "Insufficient Governance tokens");
 
     // Get the proposal id
     uint256 proposal_id = proposal_ids;
@@ -68,13 +68,13 @@ contract Governance {
     // Require the proposal is still open for voting
     require(proposals[proposal_id].end_date > now, "Too late to vote.");
     // Voter governance token balance should be greater than or equal to 1
-    require(tokensContract.balanceOf(msg.sender, 3) >= 1, "Voter balance too low");
+    require(tokensContract.balanceOf(msg.sender, 1) >= 1, "Voter balance too low");
     // Voters cannot vote twice.
     require(!proposal_voted[msg.sender][proposal_id], "Voter can not vote twice.");
 
     // Assign votes to the proposal
     Proposal storage proposal = proposals[proposal_id];
-    proposal.votes_against += sqrt(tokensContract.balanceOf(msg.sender, 3));
+    proposal.votes_against += sqrt(tokensContract.balanceOf(msg.sender, 1));
 
     // voted.
     proposal_voted[msg.sender][proposal_id] = true;
@@ -88,13 +88,13 @@ contract Governance {
     // Require the proposal is still open for voting
     require(proposals[proposal_id].end_date > now, "Too late to vote.");
     // Voter governance token balance should be greater than or equal to 1
-    require(tokensContract.balanceOf(msg.sender, 3) >= 1, "Voter balance too low");
+    require(tokensContract.balanceOf(msg.sender, 1) >= 1, "Voter balance too low");
     // Voters cannot vote twice.
     require(!proposal_voted[msg.sender][proposal_id], "Voter can not vote twice.");
 
     // Assign votes to the proposal
     Proposal storage proposal = proposals[proposal_id];
-    proposal.votes_for += sqrt(tokensContract.balanceOf(msg.sender, 3));
+    proposal.votes_for += sqrt(tokensContract.balanceOf(msg.sender, 1));
     
     // voted.
     proposal_voted[msg.sender][proposal_id] = true;

@@ -17,14 +17,14 @@ contract("Governance", (accounts) => {
     })
 
     it("1. Initialize the test by distributing governance tokens.", async() => {
-        await tokens.safeTransferFrom(reserve, proposer, 3, 100, "0x0");
-        await tokens.safeTransferFrom(reserve, voted_for, 3, 1, "0x0");
-        await tokens.safeTransferFrom(reserve, voted_against, 3, 1, "0x0");
+        await tokens.safeTransferFrom(reserve, proposer, 1, 100, "0x0");
+        await tokens.safeTransferFrom(reserve, voted_for, 1, 1, "0x0");
+        await tokens.safeTransferFrom(reserve, voted_against, 1, 1, "0x0");
 
         // verify balance
-        let propose_balance = await tokens.balanceOf(proposer, 3);
-        let for_balance = await tokens.balanceOf(voted_for, 3);
-        let against_balance = await tokens.balanceOf(voted_against, 3);
+        let propose_balance = await tokens.balanceOf(proposer, 1);
+        let for_balance = await tokens.balanceOf(voted_for, 1);
+        let against_balance = await tokens.balanceOf(voted_against, 1);
 
         assert.equal(propose_balance, 100);
         assert.equal(for_balance, 1);
@@ -60,7 +60,7 @@ contract("Governance", (accounts) => {
         // verify proposal
         let proposal2_obj = await gov.proposals(1);
 
-        assert.equal(proposal1_obj.description, description, "Description should match.");
+        assert.equal(proposal2_obj.description, description, "Description should match.");
         assert.equal(proposal2_obj.end_date, expected_endTime, "End time should match.");
     })
 
