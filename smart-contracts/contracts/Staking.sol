@@ -12,7 +12,7 @@ contract Staking is ERC1155Holder{
   mapping (address => uint256) public stakers;
   mapping (address => uint256) public lastUpdateTime;
   mapping (uint256 => uint256) public nft_cost;
-  
+
   // owner of the contract
   address owner;
 
@@ -24,12 +24,6 @@ contract Staking is ERC1155Holder{
   event Redeemed(address user, uint256 nft_id);
   // A NFT token was added to the project
   event NFTAdded(uint256 nft_id, uint256 points);
-
-  // initialize token contract and assign contract ownership.
-  constructor (address _address) public {
-    tokensContract = Tokens(_address);
-    owner = msg.sender;
-  }
 
   // Updates the count of points rewarded
   modifier updateReward(address account) {
@@ -46,8 +40,10 @@ contract Staking is ERC1155Holder{
     _;
   }
 
-  constructor(address _address) public {
+  // initialize token contract and assign contract ownership.
+  constructor (address _address) public {
     tokensContract = Tokens(_address);
+    owner = msg.sender;
   }
 
   // Adds an NFT to the project and returns the generated nft id
@@ -101,7 +97,7 @@ contract Staking is ERC1155Holder{
 
   // Redeems an NFT with the acrued points
 	function redeem(uint256 nft_id) public updateReward(msg.sender) {
-		require(nft_id < tokensContract.nft_ids, "The id is a valid nft id");
+		require(nft_id < tokensContract.get_num_of_token_types(), "The id is a valid nft id");
     require(nft_id != 0, "The id is the fungible token id");
     require(nft_id != 1, "The id isn't the governance token id");
 		require(points[msg.sender] >= nft_cost[nft_id], "Not enough points to redeem NFT");

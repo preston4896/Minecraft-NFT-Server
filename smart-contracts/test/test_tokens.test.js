@@ -12,7 +12,7 @@ contract("Tokens", (accounts) => {
         tokens = await Tokens.deployed();
         MAX_EMERALDS = await tokens.EMERALDS_total_supply();
         MAX_GOV = await tokens.GOVERNANCE_total_supply();
-        num_of_tokens = await tokens.token_ids();
+        num_of_tokens = await tokens.get_num_of_token_types.call();
     })
 
     describe("Begin testing of: (1) Minting, (2) Safe Transfer, (3) Safe Batch Transfer and (4) Approved Transfer", async() => {
