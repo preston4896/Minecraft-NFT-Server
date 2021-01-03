@@ -14,7 +14,7 @@ contract Staking is ERC1155Holder{
   mapping (uint256 => uint256) public nft_cost;
 
   // owner of the contract
-  address owner;
+  address public owner;
 
   // A user has staked his/her tokens
   event Staked(address user, uint256 amount);
@@ -47,7 +47,7 @@ contract Staking is ERC1155Holder{
   }
 
   // Adds an NFT to the project and returns the generated nft id
-  function addNFT(uint256 amount, uint256 cost) public onlyOwner returns (uint256) {
+  function addNFT(uint256 amount, uint256 cost) public onlyOwner() returns (uint256) {
     uint256 nft_id = tokensContract.mint(amount);
     nft_cost[nft_id] = cost;
 		emit NFTAdded(nft_id, amount);
@@ -67,7 +67,7 @@ contract Staking is ERC1155Holder{
 
   // Stakes some fungible tokens
 	function stake(uint256 amount) public updateReward(msg.sender) {
-		require(tokensContract.balanceOf(msg.sender, 0) >= 0, "Need some fungible tokens to stake");
+		require(tokensContract.balanceOf(msg.sender, 0) > 0, "Need some fungible tokens to stake");
 
     // Transfer the fungible tokens from the user to the contract
     tokensContract.safeTransferFrom(msg.sender, address(this), 0, amount, "0x0");
