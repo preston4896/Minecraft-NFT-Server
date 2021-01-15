@@ -37,7 +37,7 @@ contract Tokens is ERC1155 {
         return nft_id;
     }
 
-    // number of token types getter
+    // getter - get the number of token types
     function get_num_of_token_types() public view returns (uint256) {
         return token_ids;
     }
