@@ -1,8 +1,8 @@
 const Tokens = artifacts.require("Tokens");
 const DeFi = artifacts.require("DeFi");
 
-// // time-travel utils.js import
-// const utils = require("../test_lib/utils");
+// time-travel utils.js import
+const utils = require("../test_lib/utils");
 
 contract("DeFi", (accounts) => {
     let tokens;
@@ -12,7 +12,7 @@ contract("DeFi", (accounts) => {
     let borrower_2 = accounts[2]; // possesses NFT tokens. (collatoral)
     let lender = accounts[3]; // possesses fungible tokens. (funds)
     let apy = 2; // 200%, TODO: Import SafeMath for the contract. @mw2000
-    // let YEAR_IN_SECONDS = (60 * 3600 * 24 * 365);
+    let TWO_YEARS_IN_SECONDS = (2 * 3600 * 24 * 365);
 
     // load the contract instances.
     before(async() => {
@@ -164,12 +164,12 @@ contract("DeFi", (accounts) => {
         }
 
         // borrower 1 pays 50% (500 tokens) of the loan.
-        await tokens.safeTransferFrom(reserve, borrower_1, 0, 1000, "0x0"); // 1000 faucet tokens to borrower 1.
+        await tokens.safeTransferFrom(reserve, borrower_1, 0, 5000, "0x0"); // 4500 faucet tokens to borrower 1.
         await defi.payInterest(0, 500, {from: borrower_1});
 
         // verify borrower 1's balance.
         let b1_fungible_balance = await tokens.balanceOf(borrower_1, 0);
-        assert.equal(b1_fungible_balance, 1500);
+        assert.equal(b1_fungible_balance, 5500);
 
         // verify amount paid by borrower 1
         b1 = await defi.trades(0); // update.
@@ -180,32 +180,34 @@ contract("DeFi", (accounts) => {
     })
 
     // TODO: Import SafeMath library. Solidity is unable to process floating point numbers.
-    it("8. Borrower 1 pays the remainder and completes the loan. (almost 1 year after opening the loan)", async() => {
+    it("8. Borrower 1 pays the remainder and completes the loan. (almost 2 years after opening the loan)", async() => {
         // Take a snapshot to make sure that blockchain goes back in time to the point before this test is initiated.
-        // let snapshot = await utils.takeSnapshot();
-        // let snapshotID = snapshot['result'];
-        
+        let snapshot = await utils.takeSnapshot();
+        let snapshotID = snapshot['result'];
+
         let b1 = await defi.trades(0);
 
-        // // time travel to 60 days into the future.
-        // // forward_time = 60 * 3600 * 24 * 365 seconds - (now - start_time)
-        // let forward = YEAR_IN_SECONDS - ((Date.now() / 1000) - b1.start_time.toNumber());
+        // time travel to 60 days into the future.
+        // forward_time = 2 * 3600 * 24 * 365 seconds - (now - start_time)
+        // let forward = TWO_YEARS_IN_SECONDS - ((Date.now() / 1000) - b1.start_time.toNumber());
         // await utils.advanceBlockAndSetTime(forward);
 
-        // // test interest function.
-        // let interest = await defi.calculateReturnAmount(YEAR_IN_SECONDS, 500, apy);
-        // assert(interest > 500, "There should be interest accrued.");
+        // test interest function.
+        let interest = await defi.calculateReturnAmount(TWO_YEARS_IN_SECONDS, 500, apy);
+        assert(interest.toNumber() > 500, "There should be interest accrued.");
 
         // pays another 50% of the loan.
         await defi.payInterest(0, 500, {from: borrower_1});
 
         // verify borrower 1's balance.
         let b1_fungible_balance = await tokens.balanceOf(borrower_1, 0);
-        assert.equal(b1_fungible_balance.toNumber(), 1000);
+        assert.equal(b1_fungible_balance.toNumber(), 5500 - 500);
+        // assert.equal(b1_fungible_balance.toNumber(), 5500 - 500 - interest);
 
         // verify amount paid by borrower 1
         b1 = await defi.trades(0); // update.
-        assert.equal(b1.paid_back_amount.toNumber(), 1000);
+        assert.equal(b1.paid_back_amount.toNumber(), 500 + 500);
+        // assert.equal(b1.paid_back_amount.toNumber(), 500 + 500 + interest);
 
         // borrower 1 closes loan
         assert.equal(b1.state, 3);

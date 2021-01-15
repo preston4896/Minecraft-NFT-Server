@@ -9249,10 +9249,88 @@
       "links": {},
       "address": "0x1b0a2f4453D07d9F218e7504E75025aB8DD76e04",
       "transactionHash": "0x169a4655dd8dd505ac4fc48d705828f901667f1475ba42be4066c39a34389a2d"
+    },
+    "1610723909714": {
+      "events": {
+        "0xc2c021f5d73c63c481d336fbbafec58f694fc45095f00b02d2deb8cca59afe07": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "proposal_id",
+              "type": "uint256"
+            }
+          ],
+          "name": "ProposalCreated",
+          "type": "event"
+        },
+        "0x10a412bf229fbac2408912cb271b8ff9eb39eb72da91dd0c8accab0fb1011135": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "proposal_id",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "voter",
+              "type": "address"
+            }
+          ],
+          "name": "Vote",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x0627a897A662009517773dB0DDb8C6dB28b038Ee",
+      "transactionHash": "0xaaeaf0caaea35e2fd6ca2d033fcfd93fb6984f41561f309a553476de1f5bac3f"
+    },
+    "1610726607306": {
+      "events": {
+        "0xc2c021f5d73c63c481d336fbbafec58f694fc45095f00b02d2deb8cca59afe07": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "proposal_id",
+              "type": "uint256"
+            }
+          ],
+          "name": "ProposalCreated",
+          "type": "event"
+        },
+        "0x10a412bf229fbac2408912cb271b8ff9eb39eb72da91dd0c8accab0fb1011135": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "proposal_id",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "voter",
+              "type": "address"
+            }
+          ],
+          "name": "Vote",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x96b34CEB1a14E772323e5Bb9A8FE4d525A0573A8",
+      "transactionHash": "0x84a12976964455a1eb5807119d0f21a8b9fe74d3796ae974affa298a754120ec"
     }
   },
   "schemaVersion": "3.3.2",
-  "updatedAt": "2021-01-15T14:31:47.577Z",
+  "updatedAt": "2021-01-15T16:07:32.522Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
