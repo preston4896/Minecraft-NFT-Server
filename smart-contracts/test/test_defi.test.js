@@ -187,10 +187,14 @@ contract("DeFi", (accounts) => {
 
         let b1 = await defi.trades(0);
 
-        // time travel to 60 days into the future.
-        // forward_time = 2 * 3600 * 24 * 365 seconds - (now - start_time)
-        // let forward = TWO_YEARS_IN_SECONDS - ((Date.now() / 1000) - b1.start_time.toNumber());
-        // await utils.advanceBlockAndSetTime(forward);
+        // time travel 2 years into the future.
+        let diff = ((Date.now() / 1000) - b1.start_time.toNumber());
+        let forward = TWO_YEARS_IN_SECONDS;
+        await utils.advanceBlockAndSetTime(forward);
+
+        // verify that the loan is indeed two years old.
+        let two_year = b1.start_time.toNumber() + TWO_YEARS_IN_SECONDS + diff;
+        assert.equal(Math.floor(two_year), Math.floor((Date.now() / 1000) + forward), "Future time does not match.");
 
         // test interest function.
         let interest = await defi.calculateReturnAmount(TWO_YEARS_IN_SECONDS, 500, apy);
@@ -225,7 +229,7 @@ contract("DeFi", (accounts) => {
         assert.equal(contract_nft, 0);
 
         // restore time.
-        // await utils.revertToSnapshot(snapshotID);
+        await utils.revertToSnapshot(snapshotID);
     })
 
     // TODO: Liquidating loans are time dependent.
