@@ -65,6 +65,8 @@ contract Governance {
   }
 
   function voteAgainstProposal(uint256 proposal_id) public returns (bool) {
+    // Verify proposal id
+    require(proposal_id < proposal_ids, "Invalid Proposal");
     // Require the proposal is still open for voting
     require(proposals[proposal_id].end_date > now, "Too late to vote.");
     // Voter governance token balance should be greater than or equal to 1
@@ -85,6 +87,8 @@ contract Governance {
   }
 
   function voteForProposal(uint256 proposal_id) public returns (bool) {
+    // Verify proposal id
+    require(proposal_id < proposal_ids, "Invalid Proposal");
     // Require the proposal is still open for voting
     require(proposals[proposal_id].end_date > now, "Too late to vote.");
     // Voter governance token balance should be greater than or equal to 1

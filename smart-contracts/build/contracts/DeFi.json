@@ -19407,10 +19407,88 @@
       "links": {},
       "address": "0x838451D4Bc1738da87543d58F10EB1bdB87ced79",
       "transactionHash": "0x0f3b526826bb5310b9adb7dab39feab773543eebcc816fbf746b715112e68506"
+    },
+    "1611214468795": {
+      "events": {
+        "0x6cf09acb794bf223899fc9e5e68e691bfc1f84aacaedd5697dee9c3ad99e42d3": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "trade_id",
+              "type": "uint256"
+            }
+          ],
+          "name": "ClosedTrade",
+          "type": "event"
+        },
+        "0x23e82051487d5db44eb520eb79ace3df40a8e978aa477a271a4f622c377dcdbe": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "trade_id",
+              "type": "uint256"
+            }
+          ],
+          "name": "LiquidatedTrade",
+          "type": "event"
+        },
+        "0x43f9ba287b861d4cba1b8180d27de743073c39d88b83dfa197b9844eed0de184": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "trade_id",
+              "type": "uint256"
+            }
+          ],
+          "name": "OpenedTrade",
+          "type": "event"
+        },
+        "0xa6433e052d3ec1c5a37fc02e253a4fda8de4777e2a3f929e5f9418bdb21afa1b": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "trade_id",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "PaidInterest",
+          "type": "event"
+        },
+        "0x64b29278572264547a9b59e27408f2d487f0d4dbe21deb0a84a292f4d0b4960f": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "trade_id",
+              "type": "uint256"
+            }
+          ],
+          "name": "TradeFinanced",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x9740dEd0c63F091C375097E3254d7416B9E7dFE9",
+      "transactionHash": "0x3c00ffeb5b67a5d241d4d271c20239882a502ed7e96e7119f87627e1f733bdc3"
     }
   },
   "schemaVersion": "3.3.2",
-  "updatedAt": "2021-01-15T16:07:32.499Z",
+  "updatedAt": "2021-01-21T13:07:01.107Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

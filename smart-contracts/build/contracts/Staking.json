@@ -11614,10 +11614,93 @@
       "links": {},
       "address": "0x3985849c598aa668c1032Fedf4861AD7b1D82653",
       "transactionHash": "0xcd190bc5a13ade5baf5716dbe25cb6ad44c51d721cbb60c04725f1cb136831ae"
+    },
+    "1611214468795": {
+      "events": {
+        "0xe3b607f961c2e42f121175b28052f87521fd49b234f69f5acbbc257718ab3b93": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "nft_id",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "points",
+              "type": "uint256"
+            }
+          ],
+          "name": "NFTAdded",
+          "type": "event"
+        },
+        "0x4896181ff8f4543cc00db9fe9b6fb7e6f032b7eb772c72ab1ec1b4d2e03b9369": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "nft_id",
+              "type": "uint256"
+            }
+          ],
+          "name": "Redeemed",
+          "type": "event"
+        },
+        "0x9e71bc8eea02a63969f509818f2dafb9254532904319f9dbda79b67bd34a5f3d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "Staked",
+          "type": "event"
+        },
+        "0x7084f5476618d8e60b11ef0d7d3f06914655adb8793e28ff7f018d4c76d505d5": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "Withdrawn",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x5a4CAb05A4e785e50B605DE58319D4c530313884",
+      "transactionHash": "0x300fed12319d9f8c92e0d936be7d6c8443029d781d3a2a018cb1d07e9f7c1e96"
     }
   },
   "schemaVersion": "3.3.2",
-  "updatedAt": "2021-01-15T16:07:32.542Z",
+  "updatedAt": "2021-01-21T13:07:01.147Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

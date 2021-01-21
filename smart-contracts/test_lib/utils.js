@@ -3,6 +3,9 @@
 * Utility functions to advance blocktime and mine blocks artificially for EVM
 */
 
+// Read this article to learn more about manipulating the blockchain time by interacting with EVM
+// https://medium.com/fluidity/standing-the-time-of-test-b906fcc374a9
+
 advanceTime = (time) => {
   return new Promise((resolve, reject) => {
     web3.currentProvider.send({
