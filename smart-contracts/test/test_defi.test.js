@@ -281,8 +281,8 @@ contract("DeFi", (accounts) => {
         await utils.advanceBlockAndSetTime(forward);
 
         // liquidate trade.
-        let trade = await defi.trades(2);
         await defi.liquidateTrade(2, {from: lender});
+        let trade = await defi.trades(2);
 
         // borrower 2 does not pay back any loans.
         assert.equal(trade.paid_back_amount, 0);
@@ -296,6 +296,9 @@ contract("DeFi", (accounts) => {
         // contract no longer has possession of collateral
         b2_collateral = await tokens.balanceOf(defi.address, 2);
         assert.equal(b2_collateral, 1); // See test case #6
+
+        // verify liquidated.
+        assert.equal(trade.state, 2, "Loan liquidated.");
 
         // restore time.
         await utils.revertToSnapshot(snapshotID);
