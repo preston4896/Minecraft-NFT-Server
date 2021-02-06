@@ -11,7 +11,7 @@ contract("DeFi", (accounts) => {
     let borrower_2 = accounts[2]; // possesses NFT tokens. (collatoral)
     let lender = accounts[3]; // possesses fungible tokens. (funds)
     let apy = 1; // 100%, TODO: Import SafeMath for the contract. @mw2000
-    let YEAR_IN_SECONDS = (3600 * 24 * 365);
+    let TWO_YEARS_IN_SECONDS = (3600 * 24 * 365 * 2);
 
     // load the contract instances.
     before(async() => {
@@ -183,77 +183,85 @@ contract("DeFi", (accounts) => {
     })
 
     // TODO: Import SafeMath library. Solidity is unable to process floating point numbers.
-    // it("8. Borrower 1 pays the remainder and completes the loan. (1 year later)", async() => {
-    //     // Take a snapshot to make sure that blockchain goes back in time to the point before this test is initiated.
-    //     let snapshot = await utils.takeSnapshot();
-    //     let snapshotID = snapshot['result'];
+    it("8. Borrower 1 pays the remainder and completes the loan. (2 years later)", async() => {
+        // Take a snapshot to make sure that blockchain goes back in time to the point before this test is initiated.
+        let snapshot = await utils.takeSnapshot();
+        let snapshotID = snapshot['result'];
 
-    //     let b1 = await defi.trades(0);
+        let b1 = await defi.trades(0);
 
-    //     // time travel 1 year into the future.
-    //     let diff = ((Date.now() / 1000) - b1.start_time.toNumber());
-    //     let forward = YEAR_IN_SECONDS;
-    //     await utils.advanceBlockAndSetTime(forward);
+        // time travel 2 years into the future.
+        let diff = ((Date.now() / 1000) - b1.start_time.toNumber());
+        let forward = TWO_YEARS_IN_SECONDS;
+        await utils.advanceTimeAndBlock(forward);
 
-    //     // verify that the loan is indeed two years old.
-    //     let block_year = b1.start_time.toNumber() + forward + diff;
-    //     assert.equal(Math.floor(block_year), Math.floor((Date.now() / 1000) + forward), "Future time does not match.");
+        // verify that the loan is indeed two years old.
+        let block_year = b1.start_time.toNumber() + forward + diff;
+        assert.equal(Math.floor(block_year), Math.floor((Date.now() / 1000) + forward), "Future time does not match.");
 
-    //     // test interest function.
-    //     let interest = await defi.calculateReturnAmount(forward, b1.borrowing_amount, apy);
-    //     assert.equal(interest.toNumber(), 1000, "100% interest = 1000 $.");
+        // test interest function.
+        let amount_owed = await defi.calculateReturnAmount(forward, b1.borrowing_amount, apy);
+        assert.equal(amount_owed.toNumber(), 3000, ".");
 
-    //     // // pays remainder of the loan.
-    //     // await defi.payInterest(0, amount_owed, {from: borrower_1});
+        let partial_pay = 500;
 
-    //     // // verify amount paid by borrower 1
-    //     // b1 = await defi.trades(0); // update.
-    //     // assert.equal(b1.paid_back_amount.toNumber(), 500 + amount_owed);
+        // pays remainder of the loan.
+        await defi.payInterest(0, partial_pay, {from: borrower_1});
 
-    //     // // verify contract balance.
-    //     // let contract_balance = await tokens.balanceOf(defi.address, 0);
-    //     // assert.equal(contract_balance, 500 + amount_owed);
+        // verify amount paid by borrower 1
+        b1 = await defi.trades(0); // update.
+        assert.equal(b1.paid_back_amount.toNumber(), 500 + partial_pay);
 
-    //     // // borrower 1 still has to pay interest, therefore the loan is still open.
-    //     // assert.equal(b1.state, 1);
+        // verify contract balance.
+        let contract_balance = await tokens.balanceOf(defi.address, 0);
+        assert.equal(contract_balance, 500 + partial_pay);
 
-    //     // pays the interest then clost the loan.
-    //     await defi.payInterest(0, interest, {from: borrower_1});
+        // borrower 1 still has to pay interest, therefore the loan is still open.
+        assert.equal(b1.state, 1);
 
-    //     // verify amount paid by borrower 1
-    //     b1 = await defi.trades(0); // update.
-    //     assert.equal(b1.paid_back_amount.toNumber(), 1500);
+        // pays the interest then clost the loan.
+        await defi.payInterest(0, amount_owed - 1000, {from: borrower_1});
 
-    //     // verify borrower_1 balance
-    //     let balance = await tokens.balanceOf(borrower_1, 0);
-    //     assert.equal(balance, 4500);
+        // verify amount paid by borrower 1
+        b1 = await defi.trades(0); // update.
+        assert.equal(b1.paid_back_amount.toNumber(), amount_owed);
 
-    //     // verify contract balance.
-    //     contract_balance = await tokens.balanceOf(defi.address, 0);
-    //     assert.equal(contract_balance, 1500);
+        // verify borrower_1 balance
+        let balance = await tokens.balanceOf(borrower_1, 0);
+        assert.equal(balance, 3000);
 
-    //     // meets the condition to close loan.
-    //     assert(b1.paid_back_amount >= b1.borrowing_amount, "Original amount paid.");
-    //     assert(b1.paid_back_amount >= interest, "Paid interest.");
+        // meets the condition to close loan.
+        assert(b1.paid_back_amount >= b1.borrowing_amount, "Original amount paid.");
+        assert(b1.paid_back_amount >= amount_owed, "Paid interest.");
 
-    //     // borrower 1 closes loan
-    //     assert.equal(b1.state, 3);
+        // borrower 1 closes loan
+        assert.equal(b1.state, 3);
 
-    //     // verify nft token returned to borrow 1.
-    //     let b1_nft = await tokens.balanceOf(borrower_1, 1);
-    //     assert.equal(b1_nft, 1);
+        // verify contract balance - loan closed.
+        contract_balance = await tokens.balanceOf(defi.address, 0);
+        assert.equal(contract_balance, 0);
 
-    //     // verify lender received their funds.
-    //     let lender_fund = await tokens.balanceOf(lender, 0);
-    //     assert.equal(lender_fund, 10500);
+        // verify nft token returned to borrow 1.
+        let b1_nft = await tokens.balanceOf(borrower_1, 1);
+        assert.equal(b1_nft, 1);
 
-    //     // contract no longer is in possession of the tokens.
-    //     let contract_nft = await tokens.balanceOf(defi.address, 1);
-    //     assert.equal(contract_nft, 0);
+        // verify lender received their funds.
+        let lender_fund = await tokens.balanceOf(lender, 0);
+        assert.equal(lender_fund.toNumber(), 12000);
 
-    //     // restore time.
-    //     await utils.revertToSnapshot(snapshotID);
-    // })
+        // contract no longer is in possession of the tokens.
+        let contract_nft = await tokens.balanceOf(defi.address, 1);
+        assert.equal(contract_nft, 0);
+
+        // restore time.
+        await utils.revertToSnapshot(snapshotID);
+    })
+
+    // IMPORTANT: Whenever time is being reversed back, it will undo the above action.
+    it("Time reversed, undo Test #8. Borrower 1 is still being financed.", async() => {
+        let b1 = await defi.trades(0);
+        assert.equal(b1.state.toNumber(), 1, "FINANCED");
+    })
 
     it("9: Borrower 2 takes a loan and gets liquidated.", async() => {
         // Take a snapshot to make sure that blockchain goes back in time to the point before this test is initiated.
@@ -273,11 +281,10 @@ contract("DeFi", (accounts) => {
 
         // verify lender balance
         let lender_balance = await tokens.balanceOf(lender, 0);
-        assert.equal(lender_balance.toNumber(), 7000); // temp
+        assert.equal(lender_balance.toNumber(), 7000);
 
-        // one year later.
-        // time travel 1 year into the future.
-        let forward = YEAR_IN_SECONDS;
+        // two years later.
+        let forward = TWO_YEARS_IN_SECONDS;
         await utils.advanceTimeAndBlock(forward);
 
         // liquidate trade.
@@ -291,7 +298,7 @@ contract("DeFi", (accounts) => {
         let lender_nft = await tokens.balanceOf(lender, 2);
         assert.equal(lender_nft, 1);
         let lender_fungible = await tokens.balanceOf(lender, 0);
-        assert.equal(lender_fungible, 7000); // temp
+        assert.equal(lender_fungible, 7000);
 
         // contract no longer has possession of collateral
         b2_collateral = await tokens.balanceOf(defi.address, 2);
