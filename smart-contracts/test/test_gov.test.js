@@ -108,16 +108,16 @@ contract("Governance", (accounts) => {
 
     it("4. Create a proposal then vote past deadline.", async() => {
         // Take a snapshot to make sure that blockchain goes back in time to the point before this test is initiated.
-        // let snapshot = await utils.takeSnapshot();
-        // let snapshotID = snapshot['result'];
+        let snapshot = await utils.takeSnapshot();
+        let snapshotID = snapshot['result'];
 
         let description = web3.utils.keccak256("You are late.");
-        let expected_end = Math.floor(Date.now()/1000); // TODO: add 10 seconds delay, then uncomment time travel code.
+        let expected_end = Math.floor(Date.now()/1000) + 60; // TODO: add 60 seconds delay, then uncomment time travel code.
         await gov.createProposal(expected_end, description, {from: proposer});
 
-        // fast-forward fivve minute into the future.
-        // let five = 5 * 60;
-        // await utils.advanceBlockAndSetTime(five);
+        // fast-forward five days into the future.
+        let FIVE_DAYS = 5 * 60 * 24;
+        await utils.advanceTimeAndBlock(FIVE_DAYS);
 
         // attempts to vote on prop 1
         try {
@@ -144,6 +144,6 @@ contract("Governance", (accounts) => {
         assert.equal(voted_1_prop_1, false);
 
         // restore time.
-        // await utils.revertToSnapshot(snapshotID);
+        await utils.revertToSnapshot(snapshotID);
     }) 
 })

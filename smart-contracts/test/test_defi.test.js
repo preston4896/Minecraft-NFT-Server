@@ -278,7 +278,7 @@ contract("DeFi", (accounts) => {
         // one year later.
         // time travel 1 year into the future.
         let forward = YEAR_IN_SECONDS;
-        await utils.advanceBlockAndSetTime(forward);
+        await utils.advanceTimeAndBlock(forward);
 
         // liquidate trade.
         await defi.liquidateTrade(2, {from: lender});
