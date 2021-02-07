@@ -127,11 +127,6 @@ contract("Staking", (accounts) => {
         assert.equal(actual_staked, expected_staked);
     })
 
-    // until a time-dependent testing code is added, right now there isn't a method which we can explicitly calculate
-    // the amount of points that had been accrued by the staker. The assumption is that the duration to go from test #2
-    // to test #4, takes an average of 6 seconds. It should be fine if the returned earned point does not deviate too much.
-
-    // TODO: add time-dependent component for testing.
     it("5. Test NFT redemption.", async() => {
         // attempts to redeem a non-existent NFT.
         try {

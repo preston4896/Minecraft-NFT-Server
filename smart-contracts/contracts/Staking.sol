@@ -98,7 +98,7 @@ contract Staking is ERC1155Holder{
   // Redeems an NFT with the acrued points
 	function redeem(uint256 nft_id) public updateReward(msg.sender) {
 		require(nft_id < tokensContract.get_num_of_token_types(), "The id is a valid nft id");
-    require(nft_id != 0, "The id must be a fungible token id");
+    require(nft_id != 0, "The id must be a non fungible token id");
     require(nft_id != 1, "The id should not be the governance token id");
 		require(points[msg.sender] >= nft_cost[nft_id], "Not enough points to redeem NFT");
 		require(tokensContract.balanceOf(address(this), nft_id) > 0, "Max cards minted");
