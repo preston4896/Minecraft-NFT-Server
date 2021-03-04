@@ -3,22 +3,35 @@ const Tokens = artifacts.require("Tokens");
 contract("Tokens", (accounts) => {
     // declare contract instance.
     let tokens;
-    let num_of_nft = 3;
     let MAX_EMERALDS;
-    let MAX_SWORD;
-    let MAX_LUCKY_POTION;
+    let MAX_GOV;
+    let num_of_tokens;
 
     // load the instance.
     before(async() => {
         tokens = await Tokens.deployed();
         MAX_EMERALDS = await tokens.EMERALDS_total_supply();
-        MAX_SWORD = await tokens.SWORD_total_supply();
-        MAX_LUCKY_POTION = await tokens.LUCKY_POTION_total_supply();
+        MAX_GOV = await tokens.GOVERNANCE_total_supply();
+        num_of_tokens = await tokens.get_num_of_token_types.call();
     })
 
-    describe("Begin testing of: (1) Safe Transfer, (2) Safe Batch Transfer and (3) Approved Transfer", async() => {
+    describe("Begin testing of: (1) Minting, (2) Safe Transfer, (3) Safe Batch Transfer and (4) Approved Transfer", async() => {
 
-        it("1. Test SafeTransfer.", async() => {
+        it("1. Minting a new token.", async() => {
+            // there should be two token ids initially.
+            assert.equal(num_of_tokens, 2, "There should 2 token types.");
+
+            // mint new tokens.
+            let supply = 500;
+            await tokens.mint(supply);
+            
+            // verify number of tokens type.
+            num_of_tokens = await await tokens.get_num_of_token_types.call();
+
+            assert.equal(num_of_tokens, 3, "There should be 3 token types.");
+        })
+
+        it("2. Test SafeTransfer.", async() => {
             let fromAcc = accounts[0];
             let toAcc = accounts[1];
 
@@ -30,8 +43,9 @@ contract("Tokens", (accounts) => {
             }
 
             // valid transfer - transfer all tokens and verify balance
-            let max_arr = [MAX_EMERALDS, MAX_SWORD, MAX_LUCKY_POTION];
-            for (let i = 0; i < num_of_nft; i++) {
+            const MAX_MINTED = await tokens.balanceOf(accounts[0], 2);
+            let max_arr = [MAX_EMERALDS, MAX_GOV, MAX_MINTED];
+            for (let i = 0; i < num_of_tokens; i++) {
                 await tokens.safeTransferFrom(fromAcc, toAcc, i, max_arr[i], "0x0");
                 let expected_balance = max_arr[i];
                 let from_balance = await tokens.balanceOf(fromAcc, i);
@@ -41,12 +55,12 @@ contract("Tokens", (accounts) => {
             }
         })
 
-        it("2. Test BatchTransfer.", async() => {
+        it("3. Test BatchTransfer.", async() => {
             let fromAcc = accounts[1];
             let toAcc = accounts[0];
-            let batch_ids = new Array(num_of_nft).fill(0).map((e,i) => {return i;});
+            let batch_ids = new Array(num_of_tokens.toNumber()).fill(0).map((e,i) => {return i;});
 
-            // account 0 attempts to batch transfer with zero balance.
+            // account 1 attempts to batch transfer with zero balance.
             try {
                 await tokens.safeBatchTransferFrom(toAcc, fromAcc, batch_ids, [1,1,1], "0x0");
             } catch (error) {
@@ -54,28 +68,30 @@ contract("Tokens", (accounts) => {
             }
 
             // transfers all tokens back to acc 0.
-            let max_arr = [MAX_EMERALDS, MAX_SWORD, MAX_LUCKY_POTION];
+            const MAX_MINTED = await tokens.balanceOf(accounts[1], 2);
+            let max_arr = [MAX_EMERALDS, MAX_GOV, MAX_MINTED];
             await tokens.safeBatchTransferFrom(fromAcc, toAcc, batch_ids, max_arr, "0x0", {from: fromAcc});
 
             // verify balance.
-            let batch_from = new Array(num_of_nft).fill(fromAcc);
-            let batch_to = new Array(num_of_nft).fill(toAcc);
+            let batch_from = new Array(num_of_tokens.toNumber()).fill(fromAcc);
+            let batch_to = new Array(num_of_tokens.toNumber()).fill(toAcc);
             let from_balance = await tokens.balanceOfBatch(batch_from, batch_ids);
             let to_balance = await tokens.balanceOfBatch(batch_to, batch_ids);
 
-            for (let i = 0; i < num_of_nft; i++) {
+            for (let i = 0; i < num_of_tokens; i++) {
                 assert.equal(from_balance[i].toNumber(), 0, "account 1's balance should be 0.");
                 assert.equal(to_balance[i].toNumber(), max_arr[i], "account 0's balance should be max.");
             }
         })
 
-        it("3. Test ApprovedTransfer. ", async() => {
+        it("4. Test ApprovedTransfer. ", async() => {
             let fromAcc = accounts[0];
             let authorizedAcc = accounts[1];
             let toAcc = accounts[2];
-            let max_arr = [MAX_EMERALDS, MAX_SWORD, MAX_LUCKY_POTION];
+            const MAX_MINTED = await tokens.balanceOf(accounts[0], 2);
+            let max_arr = [MAX_EMERALDS, MAX_GOV, MAX_MINTED];
             let arr_75 = max_arr.map((e) => {return Math.floor(e * 0.75);});
-            let batch_ids = new Array(num_of_nft).fill(0).map((e,i) => {return i;});
+            let batch_ids = new Array(num_of_tokens.toNumber()).fill(0).map((e,i) => {return i;});
 
             // account 1 attempts to transfer prior approval.
             try {
@@ -94,7 +110,7 @@ contract("Tokens", (accounts) => {
             await tokens.safeBatchTransferFrom(fromAcc, toAcc, batch_ids, arr_75, "0x0", {from: authorizedAcc});
 
             // verify balance
-            for (let i = 0; i < num_of_nft; i++) {
+            for (let i = 0; i < num_of_tokens; i++) {
                 let transferred = arr_75[i];
                 let balance = max_arr[i] - transferred;
                 let from_balance = await tokens.balanceOf(fromAcc, i);
