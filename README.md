@@ -1,6 +1,9 @@
 # Minecraft-NFT-Server
 A Minecraft server world where players can buy and sell virtual land, items and other cosmetic goods, and build a thriving in game economy.
 
+![GitHub](https://img.shields.io/github/license/preston4896/Minecraft-NFT-Server)
+![build](https://travis-ci.org/preston4896/Minecraft-NFT-Server.svg?branch=main)
+
 ## Goals
 - Create a NFT based ecosystem based on an open world game.
 - Using a popular game like minecraft to tap into gaming audiences, younger and older alike, to introduce them to Sperax.
